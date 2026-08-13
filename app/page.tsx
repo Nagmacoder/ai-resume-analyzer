@@ -13,10 +13,10 @@ export default function Home() {
     skills: string[];
     missingKeywords: string[];
     improvements: string[];
-    jobMatchScore: number;
-    experienceMatch: string;
-    matchingSkills: string[];
-    missingSkills: string[];
+    jobMatchScore?: number;
+    experienceMatch?: string;
+    matchingSkills?: string[];
+    missingSkills?: string[];
   } | null>(null);
   const [jobDescription, setJobDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -199,84 +199,86 @@ export default function Home() {
                       </p>
 
                       <h4 className="mt-1 text-2xl font-bold text-slate-900">
-                        <h4 className="mt-1 text-2xl font-bold text-slate-900">
-                          <h4 className="mt-1 text-2xl font-bold text-slate-900">
-                            {result.matchLevel || "Resume Analysis"}
-                          </h4>
-                        </h4>
+                        {result.matchLevel || "Resume Analysis"}
                       </h4>
 
                       <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
-                        Your resume has been compared against the job
-                        description, including required skills, keywords,
-                        experience, and role-specific requirements.
+                        {jobDescription.trim()
+                          ? "Your resume has been compared against the job description, including required skills, keywords, experience, and role-specific requirements."
+                          : "Your resume has been analyzed for ATS compatibility, technical skills, keywords, experience, and overall resume quality."}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-5">
-                    <p className="text-sm font-semibold text-indigo-600">
-                      Job Match Score
-                    </p>
+                {jobDescription.trim() && (
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-5">
+                      <p className="text-sm font-semibold text-indigo-600">
+                        Job Match Score
+                      </p>
 
-                    <p className="mt-2 text-3xl font-bold text-slate-900">
-                      {result.jobMatchScore}/100
-                    </p>
+                      <p className="mt-2 text-3xl font-bold text-slate-900">
+                        {result.jobMatchScore}/100
+                      </p>
 
-                    <p className="mt-1 text-sm text-slate-600">
-                      Match with the provided job description
-                    </p>
-                  </div>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Match with the provided job description
+                      </p>
+                    </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                    <p className="text-sm font-semibold text-slate-500">
-                      Experience Match
-                    </p>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                      <p className="text-sm font-semibold text-slate-500">
+                        Experience Match
+                      </p>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-700">
-                      {result.experienceMatch}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-2">
-                  <div>
-                    <SectionTitle
-                      icon="✓"
-                      title="Matching Skills"
-                      color="green"
-                    />
-
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {result.matchingSkills?.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700"
-                        >
-                          ✓ {skill}
-                        </span>
-                      ))}
+                      <p className="mt-2 text-sm leading-6 text-slate-700">
+                        {result.experienceMatch}
+                      </p>
                     </div>
                   </div>
+                )}
+                {jobDescription.trim() && (
+                  <div className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-2">
+                    <div>
+                      <SectionTitle
+                        icon="✓"
+                        title="Matching Skills"
+                        color="green"
+                      />
 
-                  <div>
-                    <SectionTitle icon="×" title="Missing Skills" color="red" />
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {result.matchingSkills?.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700"
+                          >
+                            ✓ {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
 
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {result.missingSkills?.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                    <div>
+                      <SectionTitle
+                        icon="×"
+                        title="Missing Skills"
+                        color="red"
+                      />
+
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {result.missingSkills?.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-
+                )}
                 {/* Summary */}
                 <div className="border-b border-slate-200 pb-8">
                   <SectionTitle icon="📄" title="Summary" color="indigo" />
@@ -391,26 +393,29 @@ export default function Home() {
                   </ul>
                 </div>
                 {/* Job Match */}
-                <div className="border-b border-slate-200 py-8">
-                  <SectionTitle icon="🎯" title="Job Match" color="indigo" />
+                {jobDescription.trim() && (
+                  <div className="border-b border-slate-200 py-8">
+                    <SectionTitle icon="🎯" title="Job Match" color="indigo" />
 
-                  <div className="mt-5 rounded-xl bg-indigo-50 p-5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-900">
-                        Match Level
-                      </span>
+                    <div className="mt-5 rounded-xl bg-indigo-50 p-5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-slate-900">
+                          Match Level
+                        </span>
 
-                      <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">
-                        {result.matchLevel}
-                      </span>
+                        <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">
+                          {result.matchLevel}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                        This score reflects how closely your resume matches the
+                        requirements and keywords in the provided job
+                        description.
+                      </p>
                     </div>
-
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      This score reflects how closely your resume matches the
-                      requirements and keywords in the provided job description.
-                    </p>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

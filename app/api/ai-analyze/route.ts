@@ -9,6 +9,8 @@ const ai = new GoogleGenAI({
 export async function POST(request: Request) {
   try {
     const { resumeText, jobDescription } = await request.json();
+    const hasJobDescription =
+      typeof jobDescription === "string" && jobDescription.trim().length > 0;
     if (!resumeText) {
       return NextResponse.json(
         { error: "Resume text is required" },
@@ -16,7 +18,44 @@ export async function POST(request: Request) {
       );
     }
 
-    const prompt = `
+    const resumeOnlyPrompt = `
+You are an expert ATS resume reviewer and technical recruiter.
+
+Analyze the following resume for ATS compatibility and overall resume quality.
+
+There is NO job description provided.
+
+Return ONLY valid JSON using exactly this structure:
+
+{
+  "atsScore": 0,
+  "summary": "",
+  "strengths": [],
+  "weaknesses": [],
+  "skills": [],
+  "missingKeywords": [],
+  "improvements": []
+}
+
+Rules:
+
+- atsScore must be a number from 0 to 100.
+- Evaluate the resume based on general ATS best practices.
+- summary should be concise.
+- strengths should contain genuine strengths from the resume.
+- weaknesses should contain genuine weaknesses from the resume.
+- skills should contain important technical skills actually found in the resume.
+- missingKeywords should contain useful industry/ATS keywords that are underrepresented in the resume.
+- Do NOT compare the resume against a job description.
+- Do NOT generate job match scores.
+- Do NOT generate matching skills or missing job-specific skills.
+- Do NOT invent experience, companies, skills, or achievements.
+
+Resume:
+
+${resumeText}
+`;
+    const jobDescriptionPrompt = `
 You are an expert ATS resume reviewer, technical recruiter, and hiring manager.
 
 Analyze the candidate's resume.
@@ -84,6 +123,8 @@ Rules:
 RESUME:
 ${resumeText}
 `;
+
+    const prompt = hasJobDescription ? jobDescriptionPrompt : resumeOnlyPrompt;
 
     console.log("Sending resume text to Gemini...");
 
